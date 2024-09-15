@@ -1,0 +1,17 @@
+autoflake==2.3.1
+black
+
+# Fast api
+fastapi==0.114.2
+flake8
+
+
+# Test
+pre-commit==3.8.0
+pydantic-settings==2.1.0
+pydantic-settings==2.1.0
+pylint
+pytest
+pytest-cov
+ruff
+uvicorn==0.26.0
