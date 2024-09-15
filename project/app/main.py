@@ -1,10 +1,7 @@
 # project/app/main.py
 """FastAPI app."""
 
-# project/app/main.py
-
-
-from app.config import (
+from config import (
     Settings,
     get_settings,
 )

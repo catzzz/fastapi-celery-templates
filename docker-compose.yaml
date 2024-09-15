@@ -1,2 +1,72 @@
 services:
-  app:
+  x-base-web: &base-web
+    build:
+      context: .
+      dockerfile: ./compose/local/fastapi/Dockerfile
+    env_file:
+      - ./.env/.dev-sample
+    volumes:
+      - ./project/app:/app
+    depends_on:
+      - redis
+      - db
+    networks:
+      - my-network
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=sample_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    command: ["/start.sh"]
+
+  web:
+    <<: *base-web
+    ports:
+      - "8010:8000"
+
+
+  db:
+    build:
+      context: .
+      dockerfile: ./compose/local/postgres_db/Dockerfile
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=sample_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - my-network
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   ports:
+  #     - "5050:80"
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@example.com
+  #     - PGADMIN_DEFAULT_PASSWORD=adminpassword
+  #   volumes:
+  #     - pgadmin_data:/var/lib/pgadmin
+  #   depends_on:
+  #     - db
+  #   networks:
+  #     - my-network
+
+
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - my-network
+
+networks:
+  my-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  pgadmin_data:
