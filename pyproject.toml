@@ -42,7 +42,7 @@ disable = [
     "too-few-public-methods",
     "redefined-outer-name",
     "missing-module-docstring",
-    "aise-missing-from",
+    "raise-missing-from",
 ]
 
 [tool.pylint.reports]

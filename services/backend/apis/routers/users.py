@@ -1,11 +1,11 @@
 """User router."""
 
+from apis.celery_utils import get_task_info
 from apis.schemas.users import UserBody
 from apis.tasks.users import (
     sample_task,
     task_process_notification,
 )
-from celery.result import AsyncResult
 from fastapi import (
     APIRouter,
     Request,
@@ -41,19 +41,7 @@ async def form_example_post(user_body: UserBody):
 @users_router.get("/task_status/")
 async def task_status(task_id: str):
     """Get the status of a task."""
-    task = AsyncResult(task_id)
-    state = task.state
-
-    if state == "FAILURE":
-        error = str(task.result)
-        response = {
-            "state": state,
-            "error": error,
-        }
-    else:
-        response = {
-            "state": state,
-        }
+    response = get_task_info(task_id)
     return JSONResponse(response)
 
 
@@ -63,3 +51,12 @@ async def webhook_test_async():
     task_process_notification.delay()
 
     return "pong"
+
+
+# ---------------------
+# WebSockets
+# ---------------------
+@users_router.get("/form_ws/")
+def form_ws_example(request: Request):
+    """Get a form with websocket."""
+    return templates.TemplateResponse("form_ws.html", {"request": request})
