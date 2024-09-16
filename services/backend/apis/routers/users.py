@@ -60,3 +60,12 @@ async def webhook_test_async():
 def form_ws_example(request: Request):
     """Get a form with websocket."""
     return templates.TemplateResponse("form_ws.html", {"request": request})
+
+
+# -----------------------
+# SocketIO
+# -----------------------
+@users_router.get("/form_socketio/")
+def form_socketio_example(request: Request):
+    """Get a form with socketio."""
+    return templates.TemplateResponse("form_socketio.html", {"request": request})

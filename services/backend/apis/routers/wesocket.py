@@ -10,6 +10,10 @@ from fastapi import (
 
 ws_router = APIRouter()
 
+# -----------------------
+# WebSockets
+# -----------------------
+
 
 @ws_router.websocket("/ws/task_status/{task_id}")
 async def ws_task_status(websocket: WebSocket):

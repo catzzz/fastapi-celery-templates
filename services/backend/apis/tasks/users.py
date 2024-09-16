@@ -4,6 +4,7 @@
 import random
 
 import requests
+from apis.routers.socketio import update_celery_task_status_socketio
 from apis.routers.wesocket import update_celery_task_status
 from asgiref.sync import async_to_sync
 from celery import shared_task
@@ -56,5 +57,9 @@ def task_process_notification(self):
 # ---------------------
 @task_postrun.connect
 def task_postrun_handler(task_id, **kwargs):  # pylint: disable=unused-argument
-    """Update the task status call."""
+    """Update the task status callback function."""
+    # update websocket
     async_to_sync(update_celery_task_status)(task_id)
+
+    # update socketio
+    update_celery_task_status_socketio(task_id)  # new
