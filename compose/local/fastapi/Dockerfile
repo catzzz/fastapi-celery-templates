@@ -20,11 +20,18 @@ COPY services/backend /app
 
 # Copy the alembic folder to the container
 
-
+# FastAPI
 COPY ./compose/local/fastapi/entrypoint.sh /entrypoint.sh
 COPY ./compose/local/fastapi/start.sh /start.sh
-
 RUN chmod +x /entrypoint.sh /start.sh
+
+# Celery worker
+COPY ./compose/local/fastapi/celery/worker/start.sh /start-celeryworker.sh
+RUN chmod +x /start-celeryworker.sh
+
+# Celery beat
+COPY ./compose/local/fastapi/celery/beat/start.sh /start-celerybeat.sh
+RUN chmod +x /start-celerybeat.sh
 
 WORKDIR /app
 
