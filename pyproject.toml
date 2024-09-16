@@ -25,7 +25,7 @@ markers = [
 
 [tool.pylint.main]
 ignore = ["venv", "alembic"]
-ignore-patterns = ["^/alembic/*.py"]
+
 ignore-paths = "services/backend/alembic"
 output-format = "colorized"
 
