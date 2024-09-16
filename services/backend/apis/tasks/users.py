@@ -63,3 +63,33 @@ def task_postrun_handler(task_id, **kwargs):  # pylint: disable=unused-argument
 
     # update socketio
     update_celery_task_status_socketio(task_id)  # new
+
+
+# ---------------------
+# Periodic Task
+# ---------------------
+@shared_task(name="task_schedule_work")
+def task_schedule_work():
+    """Periodic task to run every X seconds."""
+    logger.info("task_schedule_work run")
+
+
+# ---------------------
+# Dynamic Routing Task
+# ---------------------
+@shared_task(name="default:dynamic_example_one")
+def dynamic_example_one():
+    """Dynamic task with default queue."""
+    logger.info("Example One")
+
+
+@shared_task(name="low_priority:dynamic_example_two")
+def dynamic_example_two():
+    """Dynamic task with low priority."""
+    logger.info("Example Two")
+
+
+@shared_task(name="high_priority:dynamic_example_three")
+def dynamic_example_three():
+    """Dynamic task with high priority."""
+    logger.info("Example Three")
