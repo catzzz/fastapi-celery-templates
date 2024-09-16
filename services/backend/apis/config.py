@@ -61,6 +61,24 @@ class ProductionConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     """Testing configuration settings."""
 
+    DATABASE_URL: str = os.environ.get(
+        "TEST_DATABASE_URL",
+        "postgresql://test_user:test_password@test-db:5433/test_fastapi_celery",
+    )
+    DATABASE_CONNECT_DICT: dict = {}
+
+    # Override Redis-related settings to use the Docker service name
+    CELERY_BROKER_URL: str = "redis://redis:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://redis:6379/0"
+    WS_MESSAGE_QUEUE: str = "redis://redis:6379/0"
+
+    # You might want to adjust these for testing
+    CELERY_TASK_ALWAYS_EAGER: bool = (
+        # Makes Celery tasks run synchronously for easier testing
+        True
+    )
+    CELERY_TASK_EAGER_PROPAGATES: bool = True
+
 
 @lru_cache()
 def get_settings():

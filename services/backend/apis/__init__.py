@@ -3,6 +3,7 @@
 from apis.broadcast import lifespan
 from apis.celery_utils import create_celery
 from apis.logging import configure_logging
+from apis.routers.ping import ping_router
 from apis.routers.socketio import register_socketio_app
 from apis.routers.users import users_router
 from apis.routers.wesocket import ws_router
@@ -26,8 +27,7 @@ def create_app() -> FastAPI:
     # include socketio
     register_socketio_app(app)
 
-    @app.get("/")
-    async def root():
-        return {"message": "Hello World"}
+    # include ping route'
+    app.include_router(ping_router)
 
     return app

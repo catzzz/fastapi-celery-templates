@@ -10,16 +10,19 @@ from apis.models.users import User
 from apis.schemas.users import UserBody
 from apis.tasks.users import (
     sample_task,
+    task_add_subscribe,
     task_process_notification,
     task_send_welcome_email,
 )
 from fastapi import (
     APIRouter,
     Depends,
+    HTTPException,
     Request,
 )
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
@@ -39,7 +42,7 @@ templates = Jinja2Templates(directory="apis/templates/users")
 @users_router.get("/form/")
 async def form_example_get(request: Request):
     """Get a form."""
-    return templates.TemplateResponse("form.html", {"request": request})
+    return templates.TemplateResponse(name="form.html", request={"request": request})
 
 
 @users_router.post("/form/")
@@ -85,6 +88,29 @@ def form_socketio_example(request: Request):
 # -----------------------
 # Database transaction
 # -----------------------
+
+
+@users_router.post("/user_subscribe")
+async def user_subscribe(user_body: UserBody, session: AsyncSession = Depends(get_db_session)):
+    """Create a new user and add them to a subscription list."""
+    try:
+        async with session.begin():
+            result = await session.execute(select(User).filter_by(username=user_body.username))
+            user = result.scalars().first()
+            if not user:
+                user = User(
+                    username=user_body.username,
+                    email=user_body.email,
+                )
+                session.add(user)
+                await session.flush()  # Flush to get the new user.id
+
+        # Move this outside of the session context
+        task_add_subscribe.delay(user.id)
+        return {"message": "Sent task to Celery successfully"}
+    except Exception as e:
+        logger.error("Error in user_subscribe: %s", str(e), exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 def random_username():

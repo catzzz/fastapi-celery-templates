@@ -4,6 +4,7 @@
 import asyncio
 import random
 
+import aiohttp
 import requests
 from apis.database import AsyncSessionLocal
 from apis.models.users import User
@@ -120,5 +121,39 @@ def task_send_welcome_email(user_pk: int) -> None:
     asyncio.set_event_loop(loop)
     try:
         loop.run_until_complete(process_email())
+    finally:
+        loop.close()
+
+
+# ---------------------
+# User Subscription Task
+# ---------------------
+
+
+@shared_task(bind=True, max_retries=3)
+def task_add_subscribe(self, user_pk: int) -> None:
+    """Add a user to a subscription list."""
+
+    async def process_subscription():
+        async with AsyncSessionLocal() as session:
+            try:
+                user = await session.get(User, user_pk)
+                if user:
+                    async with aiohttp.ClientSession() as http_session:
+                        async with http_session.post(
+                            "https://httpbin.org/delay/5", data={"email": user.email}, timeout=10
+                        ) as response:
+                            await response.text()  # Ensure the request is completed
+                    print(f"Added user {user.email} to subscription list")
+                else:
+                    print(f"User with id {user_pk} not found")
+            except Exception as e:
+                raise self.retry(exc=e, countdown=60)
+
+    # Create a new event loop and run the async function
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(process_subscription())
     finally:
         loop.close()
