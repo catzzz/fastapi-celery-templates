@@ -4,14 +4,21 @@ ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 
 RUN apt-get update \
-  && apt-get install -y build-essential libpq-dev telnet netcat-openbsd wget unzip \
+  && apt-get install -y build-essential libpq-dev telnet netcat-openbsd wget unzip dnsutils \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && rm -rf /var/lib/apt/lists/*
 
 
 
-COPY ./project/app/requirements.txt /requirements.txt
+
+COPY ./services/backend/requirements.txt /requirements.txt
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+
+
+# copy main backend code
+COPY services/backend /app
+
+# Copy the alembic folder to the container
 
 
 COPY ./compose/local/fastapi/entrypoint.sh /entrypoint.sh

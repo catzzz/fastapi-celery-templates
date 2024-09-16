@@ -53,27 +53,27 @@ repos:
       - id: ruff
         args: [--exit-non-zero-on-fix, --config=./pyproject.toml]
 
+
+
   - repo: https://github.com/psf/black
     rev: 23.1.0
     hooks:
       - id: black
-        args:
-          - --config=./pyproject.toml
+        args: [--config=./pyproject.toml]
 
   - repo: https://github.com/PyCQA/pylint
-    rev: v3.0.3  # Specify an older version
+    rev: v3.0.3
     hooks:
       - id: pylint
-        language: system
-        args:
-          - --rcfile=./pyproject.toml
+        args: [--rcfile=./pyproject.toml]
+
+        # exclude: ^(alembic/*.py|tests/).*$
 
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
     hooks:
       - id: flake8
-        args:
-          - --toml-config=./pyproject.toml
+        args: [--toml-config=./pyproject.toml]
         additional_dependencies:
           - radon
           - flake8-docstrings
@@ -83,8 +83,7 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
-        args:
-          - --settings-path=./pyproject.toml
+        args: [--settings-path=./pyproject.toml]
 
   - repo: https://github.com/PyCQA/autoflake
     rev: v2.0.1
