@@ -1,9 +1,12 @@
 """Users related tasks."""
 
 
+import asyncio
 import random
 
 import requests
+from apis.database import AsyncSessionLocal
+from apis.models.users import User
 from apis.routers.socketio import update_celery_task_status_socketio
 from apis.routers.wesocket import update_celery_task_status
 from asgiref.sync import async_to_sync
@@ -93,3 +96,29 @@ def dynamic_example_two():
 def dynamic_example_three():
     """Dynamic task with high priority."""
     logger.info("Example Three")
+
+
+@shared_task()
+def task_send_welcome_email(user_pk: int) -> None:
+    """Send a welcome email to a user."""
+
+    async def process_email():
+        """Process the email."""
+        async with AsyncSessionLocal() as session:
+            try:
+                user = await session.get(User, user_pk)
+                if user:
+                    print(f"Sending email to {user.email} {user.id}")
+                    # Add your email sending logic here
+                else:
+                    print(f"User with id {user_pk} not found")
+            except Exception as e:
+                raise ValueError(f"Error processing welcome email for user {user_pk}: {str(e)}")
+
+    # Create a new event loop and run the async function
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(process_email())
+    finally:
+        loop.close()

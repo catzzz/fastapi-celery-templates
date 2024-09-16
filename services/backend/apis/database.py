@@ -1,12 +1,40 @@
+"""Database configuration and session management."""
+from contextlib import asynccontextmanager
+
 from apis.config import settings
-from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    create_async_engine,
+)
 from sqlalchemy.orm import (
     declarative_base,
     sessionmaker,
 )
 
-# https://fastapi.tiangolo.com/tutorial/sql-databases/#create-the-sqlalchemy-engine
-engine = create_engine(settings.DATABASE_URL, connect_args=settings.DATABASE_CONNECT_DICT)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Update the DATABASE_URL to use the async driver
+# Replace postgresql:// with postgresql+asyncpg://
+async_database_url = settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+
+# Create async engine
+engine = create_async_engine(
+    async_database_url,
+    # Remove connect_args if they're not needed for asyncpg
+    # If you do need to pass any connect args, make sure they're compatible with asyncpg
+)
+
+# Create async session
+AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 Base = declarative_base()
+
+
+async def get_db_session():
+    """Get a database session."""
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()
+
+
+db_context = asynccontextmanager(get_db_session)

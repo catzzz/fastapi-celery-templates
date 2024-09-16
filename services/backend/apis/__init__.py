@@ -2,6 +2,7 @@
 
 from apis.broadcast import lifespan
 from apis.celery_utils import create_celery
+from apis.logging import configure_logging
 from apis.routers.socketio import register_socketio_app
 from apis.routers.users import users_router
 from apis.routers.wesocket import ws_router
@@ -12,6 +13,8 @@ def create_app() -> FastAPI:
     """Create FastAPI application."""
     app = FastAPI(lifespan=lifespan)
 
+    # configure logging
+    configure_logging()
     # do this before loading routes
     app.celery_app = create_celery()
 

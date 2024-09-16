@@ -1,17 +1,28 @@
 """User router."""
 
+import logging
+import random
+from string import ascii_lowercase
+
 from apis.celery_utils import get_task_info
+from apis.database import get_db_session
+from apis.models.users import User
 from apis.schemas.users import UserBody
 from apis.tasks.users import (
     sample_task,
     task_process_notification,
+    task_send_welcome_email,
 )
 from fastapi import (
     APIRouter,
+    Depends,
     Request,
 )
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 users_router = APIRouter(
     prefix="/users",
@@ -69,3 +80,31 @@ def form_ws_example(request: Request):
 def form_socketio_example(request: Request):
     """Get a form with socketio."""
     return templates.TemplateResponse("form_socketio.html", {"request": request})
+
+
+# -----------------------
+# Database transaction
+# -----------------------
+
+
+def random_username():
+    """Generate a random username."""
+    username = "".join([random.choice(ascii_lowercase) for i in range(5)])
+    return username
+
+
+@users_router.get("/transaction_celery/")
+async def transaction_celery(session: AsyncSession = Depends(get_db_session)):
+    """Create a new user and send a welcome email."""
+    username = random_username()
+    user = User(
+        username=f"{username}",
+        email=f"{username}@test.com",
+    )
+    async with session.begin():
+        session.add(user)
+
+    await session.refresh(user)  # Refresh to get the new user.id
+    logger.info("user %s %s is persistent now", user.id, user.username)  # Fixed logging
+    task_send_welcome_email.delay(user.id)
+    return {"message": "done"}

@@ -1,6 +1,7 @@
 alembic==1.13.1
 asgiref==3.7.2
 asyncio-redis==0.16.0
+asyncpg
 broadcaster==0.2.0
 celery==5.3.6
 fastapi==0.108.0
