@@ -1,7 +1,10 @@
 """User router."""
 
 from apis.schemas.users import UserBody
-from apis.tasks.users import sample_task
+from apis.tasks.users import (
+    sample_task,
+    task_process_notification,
+)
 from celery.result import AsyncResult
 from fastapi import (
     APIRouter,
@@ -16,7 +19,10 @@ users_router = APIRouter(
 
 templates = Jinja2Templates(directory="apis/templates/users")
 
-# Sim
+
+# --------------------------------------------
+# Emulate a user router, for webhooks and async tasks
+# --------------------------------------------
 
 
 @users_router.get("/form/")
@@ -49,3 +55,11 @@ async def task_status(task_id: str):
             "state": state,
         }
     return JSONResponse(response)
+
+
+@users_router.post("/webhook_test_async/")
+async def webhook_test_async():
+    """Test async task notification."""
+    task_process_notification.delay()
+
+    return "pong"
