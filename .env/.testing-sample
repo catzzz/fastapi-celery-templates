@@ -1,0 +1,12 @@
+
+FASTAPI_CONFIG=testing
+
+DATABASE_HOST=test-db
+DATABASE_PORT=5432
+DATABASE_USER=test_user
+DATABASE_PASSWORD=test_password
+DATABASE_NAME=test_fastapi_celery
+
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+WS_MESSAGE_QUEUE=redis://redis:6379/0

@@ -1,0 +1,13 @@
+
+FASTAPI_CONFIG=development
+
+
+DATABASE_HOST=db
+DATABASE_PORT=5432
+DATABASE_USER=fastapi_celery
+DATABASE_PASSWORD=fastapi_celery
+DATABASE_NAME=fastapi_celery
+
+CELERY_BROKER_URL=redis://redis:6379/0
+CELERY_RESULT_BACKEND=redis://redis:6379/0
+WS_MESSAGE_QUEUE=redis://redis:6379/0

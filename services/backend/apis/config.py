@@ -22,7 +22,18 @@ class BaseConfig:
     """Base configuration settings."""
 
     BASE_DIR: pathlib.Path = pathlib.Path(__file__).parent.parent
-    DATABASE_URL: str = os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3")  # noqa
+
+    DATABASE_NAME: str = os.environ["DATABASE_NAME"]
+    DATABASE_USER: str = os.environ["DATABASE_USER"]
+    DATABASE_PASSWORD: str = os.environ["DATABASE_PASSWORD"]
+    DATABASE_HOST: str = os.environ["DATABASE_HOST"]
+    DATABASE_PORT: str = os.environ["DATABASE_PORT"]
+
+    DATABASE_URL = (
+        f"postgresql: //{DATABASE_USER}: {DATABASE_PASSWORD}@{DATABASE_HOST}: {DATABASE_PORT}/{DATABASE_NAME}"
+    )
+
+    # DATABASE_URL: str = os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3")  # noqa
     DATABASE_CONNECT_DICT: dict = {}
     # Celery
     CELERY_BROKER_URL: str = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379/0")  # NEW
@@ -61,24 +72,6 @@ class ProductionConfig(BaseConfig):
 
 class TestingConfig(BaseConfig):
     """Testing configuration settings."""
-
-    DATABASE_URL: str = os.environ.get(
-        "DATABASE_URL",
-        "postgresql://test_user:test_password@test-db/test_fastapi_celery",
-    )
-    DATABASE_CONNECT_DICT: dict = {}
-
-    # Override Redis-related settings to use the Docker service name
-    CELERY_BROKER_URL: str = "redis://redis:6379/0"
-    CELERY_RESULT_BACKEND: str = "redis://redis:6379/0"
-    WS_MESSAGE_QUEUE: str = "redis://redis:6379/0"
-
-    # You might want to adjust these for testing
-    CELERY_TASK_ALWAYS_EAGER: bool = (
-        # Makes Celery tasks run synchronously for easier testing
-        True
-    )
-    CELERY_TASK_EAGER_PROPAGATES: bool = True
 
 
 @lru_cache()
