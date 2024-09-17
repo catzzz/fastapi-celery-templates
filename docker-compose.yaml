@@ -31,17 +31,6 @@ services:
     image: fastapi_celery_beat
     command: /start-celerybeat.sh
 
-  test-web:
-    <<: *base-web
-    entrypoint: ["/bin/bash", "-c"]
-    command: ["echo 'Ready to run tests and linting'"]
-    environment:
-      - TEST_DATABASE_URL=postgresql://test_user:test_password@test-db/test_fastapi_celery
-      - FASTAPI_CONFIG=testing
-    depends_on:
-      - redis
-      - test-db
-
   # Postgres
   db:
     image: postgres:16-alpine
@@ -51,19 +40,6 @@ services:
       - POSTGRES_DB=fastapi_celery
       - POSTGRES_USER=fastapi_celery
       - POSTGRES_PASSWORD=fastapi_celery
-    networks:
-      - my-network
-
-  test-db:
-    image: postgres:16-alpine
-    volumes:
-      - test_postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=test_fastapi_celery
-      - POSTGRES_USER=test_user
-      - POSTGRES_PASSWORD=test_password
-    ports:
-      - "5433:5432"
     networks:
       - my-network
 
@@ -84,5 +60,4 @@ networks:
 volumes:
   postgres_data:
   pgadmin_data:
-  test_postgres_data:
   redis_data:

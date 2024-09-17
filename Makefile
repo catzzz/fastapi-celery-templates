@@ -1,27 +1,67 @@
-.PHONY: test lint format check-all
+# Variables
+DOCKER_COMPOSE_FILE := docker-compose.tests.yaml
+DOCKER_SERVICE_NAME := tests-web
 
-# Run pytest
-test:
-	docker-compose run --rm test-web pytest -v
+# Phony targets
+.PHONY: lint-all lint-black lint-isort lint-flake8 lint-mypy lint-pylint lint-ruff
 
-# Run pylint
-lint:
-	docker-compose run --rm test-web pylint **/*.py
+# Build the linting service
+build-tests:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) build $(DOCKER_SERVICE_NAME)
 
-# Run flake8
-flake8:
-	docker-compose run --rm test-web flake8 .
+# Run all tests
 
-# Run black in check mode
-black-check:
-	docker-compose run --rm test-web black --check .
 
-# Run black and modify files
-format:
-	docker-compose run --rm test-web black .
+# Run all linters
+lint-all: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) /bin/bash -c \
+		"black --check --diff . && \
+		isort --check-only --diff . && \
+		flake8 . && \
+		mypy . && \
+		pylint **/*.py && \
+		ruff check ."
 
-# Run all checks
-check-all: test lint flake8 black-check
+# Individual linter targets
+lint-black: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) black --check --diff .
 
-# Run all checks and format
-check-and-format: check-all format
+lint-isort: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) isort --check-only --diff .
+
+lint-flake8: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) flake8  --verbose .
+
+lint-mypy: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) mypy --config-file=pyproject.toml .
+
+lint-pylint: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) pylint --rcfile=/pyproject.toml **/*.py */*.py *.py
+
+lint-ruff: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) ruff check .
+
+# Run a specific command in the linting container
+lint-custom:
+	@if [ -z "$(cmd)" ]; then \
+		echo "Usage: make lint-custom cmd='your command here'"; \
+		exit 1; \
+	fi
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) /bin/bash -c "$(cmd)"
+
+
+check-db:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) \
+		/bin/bash -c "/bin/bash /check_db_connect.sh"
+
+pytest: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) \
+		/bin/bash -c "\
+		echo 'Checking database connection...' && \
+		/bin/bash /check_db_connect.sh && \
+		echo 'Database connection successful. Running pytest...' && \
+		pytest || \
+		(echo 'Database connection failed or tests failed' && exit 1)"
+
+local-black:
+	black --config=./pyproject.toml .

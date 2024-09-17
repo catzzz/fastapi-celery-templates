@@ -7,28 +7,21 @@ black
 broadcaster==0.2.0
 celery==5.3.6
 fastapi==0.108.0
-flake8
+
 flower==2.0.1
 httpx==0.26.0
-isort
+
 Jinja2==3.1.2
-mypy
+
 Pillow==10.1.0
 psycopg2-binary==2.9.9
-pylint
-
-# Test will be split into two files
-pytest==7.4.4
-pytest-aiohttp
-pytest-asyncio
-pytest-cov==4.1.0
-pytest-tornasync
 python-multipart==0.0.6
 python-socketio==5.7.1
 redis==5.0.1
 requests==2.31.0
-ruff
 SQLAlchemy==2.0.25
 sqlalchemy[asyncio]
 uvicorn[standard]==0.25.0
 watchfiles==0.21.0
+
+# Test will be split into two files

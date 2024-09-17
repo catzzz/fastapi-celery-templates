@@ -2,11 +2,16 @@
 import os
 import pathlib
 from functools import lru_cache
+from typing import (
+    Any,
+    Dict,
+)
 
 from kombu import Queue
 
 
-def route_task(name, args, kwargs, options, task=None, **kw):  # noqa # pylint:  disable=unused-argument
+def route_task(name: str) -> Dict[str, Any]:  # noqa # pylint:  disable=unused-argument
+    """Route tasks to different queues based on the task name."""
     if ":" in name:
         queue, _ = name.split(":")
         return {"queue": queue}
@@ -36,18 +41,14 @@ class BaseConfig:
     # Force all queues to be explicitly listed in `CELERY_TASK_QUEUES` to help prevent typos
     CELERY_TASK_CREATE_MISSING_QUEUES: bool = False
 
-    CELERY_TASK_QUEUES: list = (
+    CELERY_TASK_QUEUES: tuple = (
         # need to define default queue here or exception would be raised
         Queue("default"),
         Queue("high_priority"),
         Queue("low_priority"),
     )
-    CELERY_TASK_ROUTES = {
-        "project.users.tasks.*": {
-            "queue": "high_priority",
-        },
-    }
-    CELERY_TASK_ROUTES = (route_task,)  # noqa
+    # dynamic routing
+    CELERY_TASK_ROUTES: tuple = (route_task,)
 
 
 class DevelopmentConfig(BaseConfig):
@@ -62,8 +63,8 @@ class TestingConfig(BaseConfig):
     """Testing configuration settings."""
 
     DATABASE_URL: str = os.environ.get(
-        "TEST_DATABASE_URL",
-        "postgresql://test_user:test_password@test-db:5433/test_fastapi_celery",
+        "DATABASE_URL",
+        "postgresql://test_user:test_password@test-db/test_fastapi_celery",
     )
     DATABASE_CONNECT_DICT: dict = {}
 
@@ -81,7 +82,7 @@ class TestingConfig(BaseConfig):
 
 
 @lru_cache()
-def get_settings():
+def get_settings() -> BaseConfig:
     """Get configuration settings."""
     config_cls_dict = {"development": DevelopmentConfig, "production": ProductionConfig, "testing": TestingConfig}
 

@@ -1,4 +1,5 @@
 """User schema."""
+
 from pydantic import BaseModel
 
 

@@ -1,4 +1,5 @@
 """Ping router for health check endpoint."""
+
 from fastapi import APIRouter
 
 ping_router = APIRouter(

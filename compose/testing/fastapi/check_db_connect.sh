@@ -1,11 +1,10 @@
-#!/bin/bash
 
 set -o errexit
 set -o pipefail
 set -o nounset
 
 echo "Checking DNS resolution for 'db' hostname..."
-if ! nslookup db; then
+if ! nslookup test-db; then
     echo "Failed to resolve 'db' hostname. Check your Docker network configuration."
     exit 1
 fi
@@ -58,5 +57,3 @@ until postgres_ready; do
   sleep 5
 done
 >&2 echo 'PostgreSQL is available'
-
-exec "$@"

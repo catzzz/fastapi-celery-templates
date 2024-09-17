@@ -1,4 +1,5 @@
 """User model."""
+
 from apis.database import Base
 from sqlalchemy import (
     Column,

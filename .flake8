@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 119
+extend-exclude =
+    venv,
+    */alembic/*.py,
+    __init__.py,
+    __pycache__
+ignore = D107, D212, E501, W503, W605, D203, D100
+per-file-ignores =
+    __init__.py:F401
+docstring-convention = all

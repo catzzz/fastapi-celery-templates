@@ -1,4 +1,5 @@
 """Logging configuration for the project."""
+
 import logging
 import logging.config
 

@@ -5,6 +5,7 @@ Revises: 27fefc78bdbe
 Create Date: 2024-09-16 07:17:01.685949
 
 """
+
 from typing import (
     Sequence,
     Union,

@@ -1,5 +1,6 @@
 """Websocket broadcast service."""
-from contextlib import asynccontextmanager
+
+from contextlib import asynccontextmanager  # type: ignore
 
 from apis.config import settings
 from broadcaster import Broadcast

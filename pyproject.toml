@@ -1,6 +1,8 @@
 [tool.black]
 line-length = 119
-extend-exclude = ["venv", "alembic"]
+extend-exclude = ''' alembic '''
+
+
 
 
 [tool.isort]
@@ -22,11 +24,9 @@ markers = [
     "slow: mark test as slow to run (deselct with '-m \"not slow\"')",
 ]
 
-
 [tool.pylint.main]
 ignore = ["venv", "alembic"]
-
-ignore-paths = "services/backend/alembic"
+ignore-paths = ["services/backend/alembic","app/alembic","alembic"]
 output-format = "colorized"
 
 [tool.pylint.format]
@@ -43,6 +43,7 @@ disable = [
     "redefined-outer-name",
     "missing-module-docstring",
     "raise-missing-from",
+    "wrong-import-order",
 ]
 
 [tool.pylint.reports]
@@ -62,3 +63,14 @@ extend-exclude = [
 per-file-ignores = [
     "__init__.py:F401",
 ]
+[tool.mypy]
+
+ignore_missing_imports = true
+follow_imports = "silent"
+disallow_untyped_defs = true
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+strict_optional = true
+show_error_codes = true

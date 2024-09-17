@@ -1,0 +1,51 @@
+services:
+  tests-web:
+    build:
+      context: .
+      dockerfile: ./compose/testing/fastapi/Dockerfile
+    env_file:
+      - ./.env/.testing-sample
+    volumes:
+      - ./services/backend:/app
+      - ./services/backend/tests:/app/tests
+    command: ["/bin/bash", "-c"]
+
+    environment:
+      - DATABASE_URL=postgresql://test_user:test_password@test-db/test_fastapi_celery
+      - FASTAPI_CONFIG=testing
+    depends_on:
+      - redis
+      - test-db
+    networks:
+      - test-network
+
+  test-db:
+    image: postgres:16-alpine
+    volumes:
+      - test_postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=test_fastapi_celery
+      - POSTGRES_USER=test_user
+      - POSTGRES_PASSWORD=test_password
+    ports:
+      - "5433:5432"
+    networks:
+      - test-network
+
+  # Redis
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - test-network
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  test_postgres_data:
+  redis_data:

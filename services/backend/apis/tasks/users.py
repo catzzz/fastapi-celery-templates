@@ -1,6 +1,5 @@
 """Users related tasks."""
 
-
 import asyncio
 import random
 
@@ -26,7 +25,7 @@ def api_call(email: str):
         raise ValueError("random processing error")
 
     # used for simulating a call to a third-party api
-    requests.post("https://httpbin.org/delay/5")
+    requests.post("https://httpbin.org/delay/5", timeout=6)
 
 
 @shared_task
@@ -50,7 +49,7 @@ def task_process_notification(self):
             raise ValueError("random processing error")
 
         # this would block the I/O
-        requests.post("https://httpbin.org/delay/5")
+        requests.post("https://httpbin.org/delay/5", timeout=6)
     except Exception as e:
         logger.error("exception raised, it would be retry after 5 seconds")
         raise self.retry(exc=e, countdown=5)

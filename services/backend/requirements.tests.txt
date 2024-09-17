@@ -1,0 +1,13 @@
+black
+flake8
+isort
+mypy
+pylint
+
+# Test will be split into two files
+pytest==7.4.4
+pytest-aiohttp
+pytest-asyncio
+pytest-cov==4.1.0
+pytest-tornasync
+ruff

@@ -1,4 +1,5 @@
 """Test the ping router."""
+
 import pytest
 from httpx import AsyncClient
 

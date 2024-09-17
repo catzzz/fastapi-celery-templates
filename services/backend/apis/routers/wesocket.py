@@ -1,4 +1,5 @@
 """Websocket router for task status updates."""
+
 import json
 
 from apis.broadcast import broadcast
