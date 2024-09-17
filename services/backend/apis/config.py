@@ -29,9 +29,7 @@ class BaseConfig:
     DATABASE_HOST: str = os.environ["DATABASE_HOST"]
     DATABASE_PORT: str = os.environ["DATABASE_PORT"]
 
-    DATABASE_URL = (
-        f"postgresql: //{DATABASE_USER}: {DATABASE_PASSWORD}@{DATABASE_HOST}: {DATABASE_PORT}/{DATABASE_NAME}"
-    )
+    DATABASE_URL = f"postgresql://{DATABASE_USER}:{DATABASE_PASSWORD}@{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_NAME}"  # noqa: E231, E501
 
     # DATABASE_URL: str = os.environ.get("DATABASE_URL", f"sqlite:///{BASE_DIR}/db.sqlite3")  # noqa
     DATABASE_CONNECT_DICT: dict = {}
