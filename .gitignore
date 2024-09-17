@@ -122,10 +122,13 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+
+# Don't ignore example/sample env files
+!.env*.sample
 # Optionally, don't ignore specific sample files if you prefer this naming convention
 !.env.dev-sample
 !.env.testing-sample
+.env/.env*
 .venv
 env/
 venv/
