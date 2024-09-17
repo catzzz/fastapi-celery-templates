@@ -123,6 +123,9 @@ celerybeat.pid
 
 # Environments
 .env
+# Optionally, don't ignore specific sample files if you prefer this naming convention
+!.env.dev-sample
+!.env.testing-sample
 .venv
 env/
 venv/
