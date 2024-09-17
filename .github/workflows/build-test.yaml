@@ -1,0 +1,65 @@
+name: Lint
+
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+    branches-ignore:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build test image
+        run: make build-tests
+
+      - name: Run all linters
+        run: make lint-all
+
+      - name: Tear down Docker Compose
+        run: docker-compose -f docker-compose.tests.yaml down
+        if: always()
+
+  individual-linters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Build test image
+        run: make build-tests
+
+      - name: Run Black
+        run: make lint-black
+
+      - name: Run isort
+        run: make lint-isort
+
+      - name: Run Flake8
+        run: make lint-flake8
+
+      - name: Run MyPy
+        run: make lint-mypy
+
+      - name: Run Pylint
+        run: make lint-pylint
+
+      - name: Run Ruff
+        run: make lint-ruff
+
+      - name: Tear down Docker Compose
+        run: docker-compose -f docker-compose.tests.yaml down
+        if: always()

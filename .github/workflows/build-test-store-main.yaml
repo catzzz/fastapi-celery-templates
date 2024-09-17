@@ -1,0 +1,122 @@
+name: Build, Test, Store Artifacts
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+
+jobs:
+  check-version-txt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Tag with the release version
+        run: |
+          git tag $(cat version.txt)
+
+  lint-format-and-static-code-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.12.0-slim-bookworm
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3.0.0
+
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.12.0-slim-bookworm
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./compose/local/fastapi/Dockerfile
+          push: false
+          tags: fastapi_celery:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      - name: Build test image
+        run: make build-tests
+      - name: Check database connection
+        run: make check-db
+      - name: Run tests
+        run: make pytest
+      # - name: Run all linters
+      #   run: make lint-all
+      - name: Tear down Docker Compose
+        run: docker-compose -f docker-compose.tests.yaml down
+        if: always()
+
+
+
+  # store-artifacts:
+  #   needs:
+  #     - build-image
+  #     - lint-format-and-static-code-checks
+  #     - execute-tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: Set up Python 3.12
+  #       uses: actions/setup-python@v3
+  #       with:
+  #         python-version: 3.12
+  #     - name: Generate coverage report
+  #       run: |
+  #         pip install coverage
+  #         coverage run -m pytest
+  #         coverage xml
+  #     - name: Upload coverage to Codecov
+  #       uses: codecov/codecov-action@v3
+  #       with:
+  #         file: ./coverage.xml
+  #         flags: unittests
+  #         name: codecov-umbrella
+  #         fail_ci_if_error: true
+
+  dump-contexts-to-log:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
