@@ -3,7 +3,6 @@
 import logging
 import random
 from string import ascii_lowercase
-from typing import Dict
 
 from apis.celery_utils import get_task_info
 from apis.database import get_db_session
@@ -18,13 +17,11 @@ from apis.tasks.users import (
 from fastapi import (
     APIRouter,
     Depends,
-    HTTPException,
     Request,
 )
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -74,27 +71,19 @@ def form_socketio_example(request: Request) -> templates.TemplateResponse:
     return templates.TemplateResponse("form_socketio.html", {"request": request})
 
 
-@users_router.post("/user_subscribe")
-async def user_subscribe(user_body: UserBody, session: AsyncSession = Depends(get_db_session)) -> Dict[str, str]:
-    """Create a new user and add them to a subscription list."""
-    try:
-        async with session.begin():
-            result = await session.execute(select(User).filter_by(username=user_body.username))
-            user = result.scalars().first()
-            if not user:
-                user = User(
-                    username=user_body.username,
-                    email=user_body.email,
-                )
-                session.add(user)
-                await session.flush()  # Flush to get the new user.id
-
-        # Move this outside of the session context
-        task_add_subscribe.delay(user.id)
-        return {"message": "Sent task to Celery successfully"}
-    except Exception as e:
-        logger.error("Error in user_subscribe: %s", str(e), exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
+@users_router.post("/user_subscribe/")
+def user_subscribe(user_body: UserBody, session: Session = Depends(get_db_session)):
+    """Subscribe a user."""
+    with session.begin():
+        user = session.query(User).filter_by(username=user_body.username).first()
+        if not user:
+            user = User(
+                username=user_body.username,
+                email=user_body.email,
+            )
+            session.add(user)
+    task_add_subscribe.delay(user.id)
+    return {"message": "send task to Celery successfully"}
 
 
 def random_username() -> str:
@@ -104,17 +93,15 @@ def random_username() -> str:
 
 
 @users_router.get("/transaction_celery/")
-async def transaction_celery(session: AsyncSession = Depends(get_db_session)) -> Dict[str, str]:
-    """Create a new user and send a welcome email."""
+async def transaction_celery(session: Session = Depends(get_db_session)):
+    """Test transaction with Celery."""
     username = random_username()
     user = User(
         username=f"{username}",
         email=f"{username}@test.com",
     )
-    async with session.begin():
+    with session.begin():
         session.add(user)
 
-    await session.refresh(user)  # Refresh to get the new user.id
-    logger.info("user %s %s is persistent now", user.id, user.username)
     task_send_welcome_email.delay(user.id)
     return {"message": "done"}

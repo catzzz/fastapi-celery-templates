@@ -1,4 +1,5 @@
 """Configurations for the FastAPI application."""
+
 import os
 import pathlib
 from functools import lru_cache

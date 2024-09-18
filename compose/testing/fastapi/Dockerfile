@@ -19,7 +19,7 @@ RUN pip install --upgrade pip && pip install --no-cache-dir -r /tests/requiremen
 # COPY the pytest and pyproject.toml files
 COPY ./pyproject.toml /pyproject.toml
 COPY ./services/backend/pytest.ini /pytest.ini
-
+COPY ./services/backend/.coveragerc /.coveragerc
 # copy main backend code
 COPY services/backend /app
 

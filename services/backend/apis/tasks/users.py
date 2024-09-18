@@ -1,11 +1,8 @@
 """Users related tasks."""
-
-import asyncio
 import random
 
-import aiohttp
 import requests
-from apis.database import AsyncSessionLocal
+from apis.database import db_context
 from apis.models.users import User
 from apis.routers.socketio import update_celery_task_status_socketio
 from apis.routers.wesocket import update_celery_task_status
@@ -23,7 +20,6 @@ def api_call(email: str):
     # used for testing a failed api call
     if random.choice([0, 1]):
         raise ValueError("random processing error")
-
     # used for simulating a call to a third-party api
     requests.post("https://httpbin.org/delay/5", timeout=6)
 
@@ -63,7 +59,6 @@ def task_postrun_handler(task_id, **kwargs):  # pylint: disable=unused-argument
     """Update the task status callback function."""
     # update websocket
     async_to_sync(update_celery_task_status)(task_id)
-
     # update socketio
     update_celery_task_status_socketio(task_id)  # new
 
@@ -99,60 +94,23 @@ def dynamic_example_three():
 
 
 @shared_task()
-def task_send_welcome_email(user_pk: int) -> None:
+def task_send_welcome_email(user_pk):
     """Send a welcome email to a user."""
-
-    async def process_email():
-        """Process the email."""
-        async with AsyncSessionLocal() as session:
-            try:
-                user = await session.get(User, user_pk)
-                if user:
-                    print(f"Sending email to {user.email} {user.id}")
-                    # Add your email sending logic here
-                else:
-                    print(f"User with id {user_pk} not found")
-            except Exception as e:
-                raise ValueError(f"Error processing welcome email for user {user_pk}: {str(e)}")
-
-    # Create a new event loop and run the async function
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        loop.run_until_complete(process_email())
-    finally:
-        loop.close()
+    with db_context() as session:
+        user = session.get(User, user_pk)
+        logger.info(f"send email to {user.email} {user.id}")
 
 
-# ---------------------
-# User Subscription Task
-# ---------------------
-
-
-@shared_task(bind=True, max_retries=3)
-def task_add_subscribe(self, user_pk: int) -> None:
-    """Add a user to a subscription list."""
-
-    async def process_subscription():
-        async with AsyncSessionLocal() as session:
-            try:
-                user = await session.get(User, user_pk)
-                if user:
-                    async with aiohttp.ClientSession() as http_session:
-                        async with http_session.post(
-                            "https://httpbin.org/delay/5", data={"email": user.email}, timeout=10
-                        ) as response:
-                            await response.text()  # Ensure the request is completed
-                    print(f"Added user {user.email} to subscription list")
-                else:
-                    print(f"User with id {user_pk} not found")
-            except Exception as e:
-                raise self.retry(exc=e, countdown=60)
-
-    # Create a new event loop and run the async function
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        loop.run_until_complete(process_subscription())
-    finally:
-        loop.close()
+@shared_task(bind=True)
+def task_add_subscribe(self, user_pk):
+    """Add a user to the subscription list."""
+    with db_context() as session:
+        try:
+            user = session.get(User, user_pk)
+            requests.post(
+                "https://httpbin.org/delay/5",
+                data={"email": user.email},
+                timeout=6,
+            )  # noqa: E231, E501
+        except Exception as exc:
+            raise self.retry(exc=exc)

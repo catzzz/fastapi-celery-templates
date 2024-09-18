@@ -63,5 +63,14 @@ pytest: build-tests
 		pytest || \
 		(echo 'Database connection failed or tests failed' && exit 1)"
 
+pytest-cov: build-tests
+	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) \
+		/bin/bash -c "\
+		echo 'Checking database connection...' && \
+		/bin/bash /check_db_connect.sh && \
+		echo 'Database connection successful. Running pytest with coverage...' && \
+		pytest --cov=. --cov-report=term-missing || \
+		(echo 'Database connection failed or tests failed' && exit 1)"
+
 local-black:
 	black --config=./pyproject.toml .
