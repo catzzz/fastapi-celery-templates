@@ -1,4 +1,5 @@
 """Users related tasks."""
+
 import random
 
 import requests

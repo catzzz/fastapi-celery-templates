@@ -55,13 +55,28 @@ check-db:
 		/bin/bash -c "/bin/bash /check_db_connect.sh"
 
 pytest: build-tests
-	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) \
-		/bin/bash -c "\
-		echo 'Checking database connection...' && \
-		/bin/bash /check_db_connect.sh && \
-		echo 'Database connection successful. Running pytest...' && \
-		pytest || \
-		(echo 'Database connection failed or tests failed' && exit 1)"
+	@if [ -z "$(PYTEST_ARGS)" ]; then \
+		echo "Running pytest with default arguments"; \
+		docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) \
+			/bin/bash -c "\
+			echo 'Checking database connection...' && \
+			/bin/bash /check_db_connect.sh && \
+			echo 'Database connection successful. Running pytest...' && \
+			pytest || \
+			(echo 'Database connection failed or tests failed' && exit 1)"; \
+	else \
+		echo "Running pytest with arguments: $(PYTEST_ARGS)"; \
+		docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) \
+			/bin/bash -c "\
+			echo 'Checking database connection...' && \
+			/bin/bash /check_db_connect.sh && \
+			echo 'Database connection successful. Running pytest...' && \
+			pytest $(PYTEST_ARGS) || \
+			(echo 'Database connection failed or tests failed' && exit 1)"; \
+	fi
+## example usage: make pytest PYTEST_ARGS="-k test_name"
+## make pytest PYTEST_ARGS="-v tests/your_folder"
+## make pytest PYTEST_ARGS="-v -s tests/crud/test_users_crud.py"
 
 pytest-cov: build-tests
 	docker-compose -f $(DOCKER_COMPOSE_FILE) run --rm $(DOCKER_SERVICE_NAME) \

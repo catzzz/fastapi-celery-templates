@@ -60,6 +60,9 @@ class BaseConfig:
     # dynamic routing
     CELERY_TASK_ROUTES: tuple = (route_task,)
 
+    REDIS_HOST: str = os.environ.get("REDIS_HOST", "redis")
+    REDIS_PORT: int = int(os.environ.get("REDIS_PORT", 6379))
+
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration settings."""

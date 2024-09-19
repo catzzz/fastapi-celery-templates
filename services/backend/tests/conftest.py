@@ -1,6 +1,7 @@
 """Conftest for the tests."""
 
 import os
+from unittest.mock import MagicMock
 
 import pytest
 from apis import create_app
@@ -60,3 +61,12 @@ def async_client(app):
 def tmp_upload_dir(tmpdir, settings):
     """Set the upload directory."""
     settings.UPLOADS_DEFAULT_DEST = tmpdir.mkdir("tmp")
+
+
+@pytest.fixture
+def mock_redis_interface():
+    """Return a mock RedisInterface instance."""
+    mock = MagicMock()
+    mock.cache.return_value = lambda func: func  # Make cache decorator a no-op
+    mock.get.return_value = None  # Simulate cache miss
+    return mock

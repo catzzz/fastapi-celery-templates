@@ -1,6 +1,7 @@
 import asyncio
 import time
 from unittest import mock
+from unittest.mock import ANY
 
 import pytest
 import requests
@@ -27,25 +28,54 @@ async def test_pytest_setup(async_client: AsyncClient, db_session):
     assert user.id
 
 
-def test_view_with_eager_mode(client, settings, monkeypatch):
+def test_view_with_eager_mode(client, settings, db_session, monkeypatch):
     """Test the view with eager mode."""
+    # Mock the requests.post method
     mock_requests_post = mock.MagicMock()
     monkeypatch.setattr(requests, "post", mock_requests_post)
 
+    # Set Celery to eager mode
     monkeypatch.setattr(settings, "CELERY_TASK_ALWAYS_EAGER", True, raising=False)
 
+    # Test data
     user_name = "michaelyin"
     user_email = f"{user_name}@accordbox.com"
+
+    # Make the request
     response = client.post(
         users_router.url_path_for("user_subscribe"),
         json={"email": user_email, "username": user_name},
     )
+
+    # Assert response
     assert response.status_code == 200
     assert response.json() == {
         "message": "send task to Celery successfully",
     }
 
-    mock_requests_post.assert_called_with("https://httpbin.org/delay/5", data={"email": user_email})
+    # Assert the mock was called with the correct arguments
+    mock_requests_post.assert_called_once()
+    call_args = mock_requests_post.call_args
+
+    # Check positional arguments
+    assert call_args[0][0] == "https://httpbin.org/delay/5"
+
+    # Check keyword arguments
+    assert call_args[1]["data"] == {"email": user_email}
+    assert "timeout" in call_args[1]
+    assert isinstance(call_args[1]["timeout"], (int, float))
+
+    # If you want to check the exact timeout value, uncomment the following line:
+    assert call_args[1]["timeout"] == 6
+
+    # Alternative: If you want to use assert_called_once_with
+    mock_requests_post.assert_called_once_with("https://httpbin.org/delay/5", data={"email": user_email}, timeout=ANY)
+
+    # Check if a user was created in the database
+    with db_session as session:
+        user = session.query(User).filter_by(email=user_email).first()
+        assert user is not None
+        assert user.username == user_name
 
 
 def test_user_subscribe_view(client, db_session, monkeypatch, user_factory):
