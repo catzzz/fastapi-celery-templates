@@ -1,4 +1,5 @@
 """Redis Interface."""
+
 import json
 from functools import wraps
 from typing import (
@@ -10,11 +11,26 @@ import redis
 from apis.config import settings
 
 
+class SharedRedisClient:
+    """Shared Redis client."""
+
+    _instance = None
+
+    @classmethod
+    def get_instance(cls):
+        """Get Redis instance."""
+        if cls._instance is None:
+            cls._instance = redis.Redis(
+                host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, decode_responses=True
+            )
+        return cls._instance
+
+
 class RedisInterface:
     """Interface to interact with Redis."""
 
-    def __init__(self, host: str, port: int, db: int = 0):
-        self.redis = redis.Redis(host=host, port=port, db=db, decode_responses=True)
+    def __init__(self):
+        self.redis = SharedRedisClient.get_instance()
 
     def set(self, key: str, value: Any, ex: Optional[int] = None):
         """Set a key-value pair in Redis, with optional expiration time."""
@@ -54,4 +70,4 @@ def get_redis_interface():
 
 
 # Create a global instance
-redis_interface = RedisInterface(host=settings.REDIS_HOST, port=settings.REDIS_PORT)
+redis_interface = RedisInterface()

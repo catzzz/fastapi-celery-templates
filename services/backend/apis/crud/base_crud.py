@@ -1,4 +1,5 @@
 """Base CRUD operations for database models."""
+
 import json
 import logging
 from abc import (

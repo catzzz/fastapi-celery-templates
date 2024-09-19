@@ -64,6 +64,22 @@ def tmp_upload_dir(tmpdir, settings):
 
 
 @pytest.fixture
+def mock_shared_redis_client(monkeypatch):
+    """Return a mock SharedRedisClient instance."""
+    mock_redis = MagicMock()
+    mock_ts = MagicMock()
+    mock_redis.ts.return_value = mock_ts
+    mock_redis.pipeline.return_value = mock_redis
+    mock_redis.execute.return_value = None
+
+    def mock_get_instance():
+        return mock_redis
+
+    monkeypatch.setattr("apis.redis_interfacce.SharedRedisClient.get_instance", mock_get_instance)
+    return mock_redis
+
+
+@pytest.fixture
 def mock_redis_interface():
     """Return a mock RedisInterface instance."""
     mock = MagicMock()

@@ -6,6 +6,7 @@ import logging
 import pytest
 from apis.crud.users import UserCRUD
 from apis.models.users import User
+from apis.redis_interfacce import RedisInterface
 from sqlalchemy.orm import Session
 
 logging.basicConfig(level=logging.DEBUG)
@@ -17,6 +18,13 @@ def user_crud(mock_redis_interface):
     """Return a UserCRUD instance with a mock Redis interface."""
     print("Creating UserCRUD instance")
     return UserCRUD(redis_interface=mock_redis_interface)
+
+
+def test_redis_interface(mock_shared_redis_client):
+    """Test RedisInterface set method."""
+    redis_interface = RedisInterface()
+    redis_interface.set("test_key", "test_value")
+    mock_shared_redis_client.set.assert_called_once_with("test_key", '"test_value"', ex=None)
 
 
 def test_create_user(db_session: Session, user_crud: UserCRUD, mock_redis_interface):
