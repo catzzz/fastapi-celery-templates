@@ -2,12 +2,12 @@
 
 from pydantic import BaseModel
 
+from .contract_request import ExtendContractRequest
+
 
 class CandleRequest(BaseModel):
-    """Candle request model."""
+    """Class Candle request model."""
 
-    sec_type: str
-    symbol: str
-    bar_size: str
+    extend_contract_request: ExtendContractRequest
     from_time: int
     to_time: int

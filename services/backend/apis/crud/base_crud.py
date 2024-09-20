@@ -105,8 +105,10 @@ class BaseCRUD(ABC, Generic[T]):
 
     def delete(self, db: Session, *, obj_id: str) -> T:
         """Delete an object from the database."""
-        logger.debug("Deleting %s object with id: %s", self.model.__name__, id)
-        obj = db.query(self.model).get(obj_id)
+        logger.debug("Deleting %s object with id: %s", self.model.__name__, obj_id)
+        obj = db.get(self.model, obj_id)
+        if obj is None:
+            raise ValueError(f"Object with id {obj_id} not found")
         db.delete(obj)
         db.commit()
         cache_key = self.get_cache_key(obj_id)
