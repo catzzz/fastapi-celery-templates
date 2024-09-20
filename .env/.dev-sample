@@ -11,5 +11,5 @@ DATABASE_NAME=fastapi_celery
 CELERY_BROKER_URL=redis://redis:6379/0
 CELERY_RESULT_BACKEND=redis://redis:6379/0
 WS_MESSAGE_QUEUE=redis://redis:6379/0
-REDIS_HOST=host.docker.internal
+REDIS_HOST=redis
 REDIS_PORT=6379

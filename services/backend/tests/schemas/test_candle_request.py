@@ -1,15 +1,26 @@
+from apis.enums.bar_size import BarSize
+from apis.enums.currency import Currency
+from apis.enums.sec_type import SecType
 from apis.schemas.candle_request import CandleRequest
+from apis.schemas.contract_request import ExtendContractRequest
 
 
 def test_candle_request():
     """Test CandleRequest creation and attributes."""
     request = CandleRequest(
-        sec_type="STK", symbol="AAPL", bar_size="1 min", from_time=1633027200000, to_time=1633027260000, currency="USD"
+        extend_contract_request=ExtendContractRequest(
+            sec_type=SecType.STK,
+            symbol="AAPL",
+            currency=Currency.USD,
+            bar_size=BarSize.ONE_MINUTE,
+        ),
+        from_time=1633027200000,
+        to_time=1633027260000,
     )
 
-    assert request.sec_type == "STK"
-    assert request.symbol == "AAPL"
-    assert request.bar_size == "1 min"
-    assert request.currency == "USD"
+    assert request.extend_contract_request.sec_type == SecType.STK
+    assert request.extend_contract_request.symbol == "AAPL"
+    assert request.extend_contract_request.bar_size == BarSize.ONE_MINUTE
+    assert request.extend_contract_request.currency == Currency.USD
     assert request.from_time == 1633027200000
     assert request.to_time == 1633027260000
