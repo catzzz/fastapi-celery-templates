@@ -6,6 +6,7 @@ autoflake
 black
 broadcaster==0.2.0
 celery==5.3.6
+celery[rabbitmq]
 fastapi==0.108.0
 
 flower==2.0.1
