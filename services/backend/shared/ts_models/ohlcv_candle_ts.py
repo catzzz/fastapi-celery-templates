@@ -10,15 +10,15 @@ from typing import (
 )
 
 import pytz
-from apis.enums.bar_size import BarSize
-from apis.enums.currency import Currency
-from apis.enums.sec_type import SecType
-from apis.schemas.candle_request import CandleRequest
-from apis.schemas.contract_request import ExtendContractRequest
 from pydantic import (
     BaseModel,
     Field,
 )
+from shared.enums.bar_size import BarSize
+from shared.enums.currency import Currency
+from shared.enums.sec_type import SecType
+from shared.schemas.candle_request import CandleRequest
+from shared.schemas.contract_request import ExtendContractRequest
 
 from .base_ts_model import (
     BaseTimeSeriesModel,

@@ -1,8 +1,8 @@
-from apis.enums.bar_size import BarSize
-from apis.enums.currency import Currency
-from apis.enums.sec_type import SecType
-from apis.schemas.candle_request import CandleRequest
-from apis.schemas.contract_request import ExtendContractRequest
+from shared.enums.bar_size import BarSize
+from shared.enums.currency import Currency
+from shared.enums.sec_type import SecType
+from shared.schemas.candle_request import CandleRequest
+from shared.schemas.contract_request import ExtendContractRequest
 
 
 def test_candle_request():

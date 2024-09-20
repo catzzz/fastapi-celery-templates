@@ -1,4 +1,5 @@
 """Exchange enum."""
+
 from enum import Enum
 
 

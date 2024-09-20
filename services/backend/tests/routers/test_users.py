@@ -5,13 +5,13 @@ from unittest.mock import ANY
 
 import pytest
 import requests
-from apis.models.users import User
 from apis.routers.users import users_router
 from apis.tasks.users import (
     task_add_subscribe,
     task_send_welcome_email,
 )
 from httpx import AsyncClient
+from shared.models.users import User
 
 
 @pytest.mark.asyncio

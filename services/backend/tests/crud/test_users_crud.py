@@ -4,12 +4,11 @@ import json
 import logging
 
 import pytest
-from apis.crud.users import UserCRUD
-from apis.models.users import User
-from apis.redis_interfacce import RedisInterface
+from shared.crud.users import UserCRUD
+from shared.models.users import User
+from shared.redis_interfacce import RedisInterface
 from sqlalchemy.orm import Session
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 

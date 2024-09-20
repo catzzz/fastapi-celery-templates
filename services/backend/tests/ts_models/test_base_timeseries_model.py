@@ -10,7 +10,7 @@ from typing import (
 from unittest.mock import patch
 
 import pytest
-from apis.ts_models.base_ts_model import (
+from shared.ts_models.base_ts_model import (
     BaseTimeSeriesModel,
     TimeSeriesModelException,
 )

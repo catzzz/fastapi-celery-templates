@@ -3,14 +3,14 @@
 import random
 
 import requests
-from apis.database import db_context
-from apis.models.users import User
 from apis.routers.socketio import update_celery_task_status_socketio
 from apis.routers.wesocket import update_celery_task_status
 from asgiref.sync import async_to_sync
 from celery import shared_task
 from celery.signals import task_postrun
 from celery.utils.log import get_task_logger
+from shared.database import db_context
+from shared.models.users import User
 
 logger = get_task_logger(__name__)
 

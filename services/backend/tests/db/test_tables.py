@@ -1,6 +1,6 @@
 """Test the users table exists in the database."""
 
-from apis.database import SessionLocal
+from shared.database import SessionLocal
 from sqlalchemy.sql import text
 
 

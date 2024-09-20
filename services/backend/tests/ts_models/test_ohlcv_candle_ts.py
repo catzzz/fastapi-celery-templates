@@ -5,14 +5,14 @@ from datetime import (
 from unittest.mock import MagicMock
 
 import pytest
-from apis.enums.bar_size import BarSize
-from apis.enums.currency import Currency
-from apis.enums.exchange import Exchange
-from apis.enums.sec_type import SecType
-from apis.schemas.candle_request import CandleRequest
-from apis.schemas.contract_request import ExtendContractRequest
-from apis.ts_models.base_ts_model import TimeSeriesModelException
-from apis.ts_models.ohlcv_candle_ts import (
+from shared.enums.bar_size import BarSize
+from shared.enums.currency import Currency
+from shared.enums.exchange import Exchange
+from shared.enums.sec_type import SecType
+from shared.schemas.candle_request import CandleRequest
+from shared.schemas.contract_request import ExtendContractRequest
+from shared.ts_models.base_ts_model import TimeSeriesModelException
+from shared.ts_models.ohlcv_candle_ts import (
     OhlcvCandleData,
     OhlcvCandleException,
     OhlcvCandleTS,

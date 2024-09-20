@@ -1,13 +1,13 @@
 """Contract request schema."""
 
-from apis.enums.bar_size import BarSize
-from apis.enums.currency import Currency
-from apis.enums.exchange import Exchange
-from apis.enums.sec_type import SecType
 from pydantic import (
     BaseModel,
     Field,
 )
+from shared.enums.bar_size import BarSize
+from shared.enums.currency import Currency
+from shared.enums.exchange import Exchange
+from shared.enums.sec_type import SecType
 
 
 class ContractRequest(BaseModel):

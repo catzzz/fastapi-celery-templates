@@ -15,7 +15,7 @@ from typing import (
     TypeVar,
 )
 
-from apis.redis_interfacce import SharedRedisClient
+from shared.redis_interfacce import SharedRedisClient
 
 T = TypeVar("T")
 

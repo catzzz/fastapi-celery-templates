@@ -6,15 +6,15 @@ from unittest.mock import MagicMock
 import pytest
 from apis import create_app
 from apis.config import settings as _settings
-from apis.database import (
+from fastapi.testclient import TestClient
+from httpx import AsyncClient
+from pytest_factoryboy import register
+from shared.database import (
     Base,
     SessionLocal,
     engine,
 )
-from apis.factories.users import UserFactory
-from fastapi.testclient import TestClient
-from httpx import AsyncClient
-from pytest_factoryboy import register
+from shared.factories.users import UserFactory
 
 os.environ["FASTAPI_CONFIG"] = "testing"  # noqa
 
@@ -75,7 +75,7 @@ def mock_shared_redis_client(monkeypatch):
     def mock_get_instance():
         return mock_redis
 
-    monkeypatch.setattr("apis.redis_interfacce.SharedRedisClient.get_instance", mock_get_instance)
+    monkeypatch.setattr("shared.redis_interfacce.SharedRedisClient.get_instance", mock_get_instance)
     return mock_redis
 
 

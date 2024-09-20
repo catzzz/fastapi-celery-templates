@@ -5,11 +5,11 @@ from typing import (
     override,
 )
 
-from apis.enums.status import Status
 from pydantic import (
     BaseModel,
     Field,
 )
+from shared.enums.status import Status
 
 from .base_ts_model import (
     BaseTimeSeriesModel,

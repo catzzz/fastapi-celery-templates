@@ -16,7 +16,7 @@ from typing import (
     TypeVar,
 )
 
-from apis.redis_interfacce import RedisInterface
+from shared.redis_interfacce import RedisInterface
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 

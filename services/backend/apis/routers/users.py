@@ -5,9 +5,6 @@ import random
 from string import ascii_lowercase
 
 from apis.celery_utils import get_task_info
-from apis.database import get_db_session
-from apis.models.users import User
-from apis.schemas.users import UserBody
 from apis.tasks.users import (
     sample_task,
     task_add_subscribe,
@@ -21,9 +18,13 @@ from fastapi import (
 )
 from fastapi.responses import JSONResponse
 from fastapi.templating import Jinja2Templates
+from shared.database import get_db_session
+from shared.models.users import User
+from shared.schemas.users import UserBody
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
+
 
 users_router = APIRouter(
     prefix="/users",

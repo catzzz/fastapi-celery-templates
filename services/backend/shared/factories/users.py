@@ -1,12 +1,12 @@
 """Factory for User model."""
 
 import factory
-from apis.database import SessionLocal
-from apis.models.users import User
 from factory import (
     Faker,
     LazyAttribute,
 )
+from shared.database import SessionLocal
+from shared.models.users import User
 
 
 class UserFactory(factory.alchemy.SQLAlchemyModelFactory):

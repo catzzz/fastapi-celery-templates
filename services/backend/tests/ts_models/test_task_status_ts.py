@@ -5,8 +5,8 @@ from datetime import (
 from unittest.mock import MagicMock
 
 import pytest
-from apis.enums.status import Status
-from apis.ts_models.task_status_ts import (
+from shared.enums.status import Status
+from shared.ts_models.task_status_ts import (
     TaskStatusData,
     TaskStatusTs,
     TimeSeriesModelException,

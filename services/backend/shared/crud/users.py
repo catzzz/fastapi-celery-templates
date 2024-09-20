@@ -6,8 +6,8 @@ from typing import (
     Optional,
 )
 
-from apis.models.users import User
-from apis.redis_interfacce import RedisInterface
+from shared.models.users import User
+from shared.redis_interfacce import RedisInterface
 from sqlalchemy.orm import Session
 
 from .base_crud import BaseCRUD
